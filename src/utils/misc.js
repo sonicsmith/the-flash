@@ -7,12 +7,17 @@ export const getProfit = ({ pancakeData, bakeryData, loanAmount = 1 }) => {
 }
 
 const getFullValue = ({ amount, decimals }) => {
-  return amount * Math.pow(10, decimals)
+  return Math.round(amount * Math.pow(10, decimals))
 }
 
 export const getFlashLoanPair = (data) => {
-  console.log("getFlashLoan - data:", data)
-  const { pancakeData, bakeryData, loanAmount } = data
+  const { pairLabel, pancakeData, bakeryData, loanAmount } = data
+  const [token0Symbol, token1Symbol] = pairLabel.split("/")
+  console.log(`Pancake pairId:`, pancakeData.pairId)
+  console.log(`Pancake ${token0Symbol} price:`, pancakeData.token0BnbValue)
+  console.log(`Pancake ${token1Symbol} price:`, pancakeData.token1BnbValue)
+  console.log(`Bakery ${token0Symbol} price:`, bakeryData.token0BnbValue)
+  console.log(`Bakery ${token1Symbol} price:`, bakeryData.token1BnbValue)
   let token0Amount = 0
   let token1Amount = 0
   const difference = pancakeData.ratio - bakeryData.ratio
@@ -21,6 +26,11 @@ export const getFlashLoanPair = (data) => {
   } else {
     token1Amount = loanAmount / pancakeData.token1BnbValue
   }
+
+  console.log(
+    "Flash loan will borrow",
+    token0Amount ? token0Symbol : token1Symbol
+  )
 
   return {
     token0Address: pancakeData.token0Address,

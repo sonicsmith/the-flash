@@ -32,8 +32,10 @@ export const getPairs = (url) => {
     .then(({ data }) => data.pairs)
     .then((pairs) => {
       return pairs.reduce((result, pair) => {
-        const { token0, token1, token0Price } = pair
-        result[`${token0.symbol}/${token1.symbol}`] = {
+        const { id, token0, token1, token0Price } = pair
+        const pairLabel = `${token0.symbol}/${token1.symbol}`
+        result[`${token0.id}_${token1.id}`] = {
+          pairLabel,
           ratio: token0Price,
           token0Address: token0.id,
           token1Address: token1.id,
@@ -41,6 +43,7 @@ export const getPairs = (url) => {
           token1BnbValue: token1.derivedETH,
           token0Decimals: token0.decimals,
           token1Decimals: token1.decimals,
+          pairId: id,
         }
         return result
       }, {})
@@ -57,12 +60,13 @@ export default () => {
     console.log("Number of pancake pairs:", Object.keys(pancake).length)
     console.log("Number of bakery pairs:", Object.keys(bakery).length)
     const data = Object.keys(pancake)
-      .map((pairLabel) => {
-        if (bakery[pairLabel]) {
+      .map((idsForPair) => {
+        if (bakery[idsForPair]) {
+          const { pairLabel } = pancake[idsForPair]
           return {
             pairLabel,
-            bakeryData: bakery[pairLabel],
-            pancakeData: pancake[pairLabel],
+            pancakeData: pancake[idsForPair],
+            bakeryData: bakery[idsForPair],
           }
         }
       })
@@ -78,6 +82,7 @@ export default () => {
         })
         return bProfit - aProfit
       })
+    console.log("All pairs:", data)
     return data
   }
 
